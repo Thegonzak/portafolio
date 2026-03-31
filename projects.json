@@ -1,29 +1,16 @@
 [
   {
     "id": 1,
-    "title": "E-Commerce Dashboard",
-    "description": "Panel de administración completo para tienda en línea con gestión de inventario, pedidos y análisis de ventas en tiempo real.",
-    "tags": ["React", "Node.js", "MongoDB"],
-    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-    "link": "#",
-    "year": "2024"
-  },
-  {
-    "id": 2,
-    "title": "Landing Page Corporativa",
-    "description": "Sitio web institucional con diseño responsivo, animaciones CSS avanzadas y optimización SEO para empresa financiera.",
-    "tags": ["HTML", "CSS", "JavaScript"],
-    "image": "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80",
-    "link": "#",
-    "year": "2024"
-  },
-  {
-    "id": 3,
-    "title": "Sistema de Reservas",
-    "description": "Aplicación web para gestión de citas y reservas con calendario interactivo, notificaciones por email y panel de reportes.",
-    "tags": ["Vue.js", "Laravel", "MySQL"],
-    "image": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80",
-    "link": "#",
-    "year": "2023"
+    "title": "E-Commerce Dashboard PC Solutions",
+    "description": "Panel de administración completo para tienda informatica en línea con gestión de inventario, pedidos y análisis de ventas en tiempo real.",
+    "year": "2026",
+    "link": "https://imgur.com/a/ecommerce-pc-solutions-K6MnDQS",
+    "image": "https://i.imgur.com/aRT0TOj.png",
+    "tags": [
+      "Next.js 16 (App Router) + TypeScript + React 19",
+      "Tailwind CSS v4 + shadcn/ui (new-york slate)",
+      "PostgreSQL 18",
+      "Prisma v7"
+    ]
   }
 ]
