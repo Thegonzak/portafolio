@@ -2,7 +2,7 @@
   {
     "id": 1,
     "title": "E-Commerce Dashboard PC Solutions",
-    "description": "Panel de administración completo para tienda informatica en línea con gestión de inventario, pedidos y análisis de ventas en tiempo real.",
+    "description": "Panel de administraciÃ³n completo para tienda informatica en lÃ­nea con gestiÃ³n de inventario, pedidos y anÃ¡lisis de ventas en tiempo real.",
     "year": "2026",
     "link": "https://imgur.com/a/ecommerce-pc-solutions-K6MnDQS",
     "image": "https://i.imgur.com/aRT0TOj.png",
@@ -11,6 +11,21 @@
       "Tailwind CSS v4 + shadcn/ui (new-york slate)",
       "PostgreSQL 18",
       "Prisma v7"
+    ]
+  },
+  {
+    "id": 1774982371471,
+    "title": "The JGE Perfumery website",
+    "description": "El sitio web de JGE Perfumery se creó para vender perfumes desde una tienda física. En él se muestran los perfumes disponibles, con sus precios y descripciones. Los clientes pueden contactar con un vendedor para realizar la compra y coordinar el envío.",
+    "year": "2025",
+    "link": "https://imgur.com/a/ybpz5dW",
+    "image": "https://i.imgur.com/cY8DAvU.jpg",
+    "tags": [
+      "JavaScript",
+      "Firebase Cloud Firestore",
+      "HTML",
+      "CSS",
+      "Bootstrap"
     ]
   }
 ]
