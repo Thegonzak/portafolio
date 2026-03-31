@@ -314,11 +314,18 @@
               <div class="tags-preview" id="tags-preview"></div>
             </div>
             <div class="form-group">
-              <label>URL de imagen</label>
-              <input type="url" id="f-image" placeholder="https://... (Unsplash, Imgur, etc.)" oninput="previewImage()">
+              <label>Imagen del proyecto</label>
+              <input type="text" id="f-image" placeholder="https://imgur.com/abc123  o  https://i.imgur.com/abc123.jpg" oninput="previewImage()">
+              <div id="imgur-converted" style="display:none;margin-top:0.4rem;font-size:0.75rem;color:var(--green);">
+                ✅ Link de Imgur detectado y convertido automáticamente
+              </div>
               <img id="img-preview" class="img-preview" alt="Preview">
-              <div style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem;">
-                💡 Puedes usar <a href="https://unsplash.com" target="_blank" style="color:var(--accent);">Unsplash</a> o subir tu imagen a <a href="https://imgur.com" target="_blank" style="color:var(--accent);">Imgur</a> y pegar la URL.
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem;line-height:1.6;">
+                💡 Pega el link de Imgur tal como lo copias — ya sea la página
+                (<code style="background:rgba(0,0,0,0.3);padding:0.1rem 0.3rem;border-radius:3px;">imgur.com/abc123</code>)
+                o el link directo
+                (<code style="background:rgba(0,0,0,0.3);padding:0.1rem 0.3rem;border-radius:3px;">i.imgur.com/abc123.jpg</code>).
+                También puedes usar <a href="https://unsplash.com" target="_blank" style="color:var(--accent);">Unsplash</a>.
               </div>
             </div>
           </div>
@@ -389,7 +396,7 @@
 <script>
   /* ══════════════ AUTH ══════════════ */
   // ⚠️ CAMBIA ESTA CONTRASEÑA antes de subir
-  const ADMIN_PASSWORD = 'Gonzak10051998';
+  const ADMIN_PASSWORD = 'mipassword123';
 
   function tryLogin() {
     const val = document.getElementById('password-input').value;
@@ -542,7 +549,7 @@
       description: desc,
       year:        document.getElementById('f-year').value.trim() || String(new Date().getFullYear()),
       link:        document.getElementById('f-link').value.trim() || '#',
-      image:       document.getElementById('f-image').value.trim(),
+      image:       getFinalImageUrl(),
       tags:        [...currentTags]
     };
 
@@ -599,12 +606,57 @@
     ).join('');
   }
 
-  /* ══════════════ IMAGE ══════════════ */
+  /* ══════════════ IMAGE + IMGUR CONVERTER ══════════════ */
+  function convertImgurUrl(url) {
+    if (!url) return url;
+
+    // Already a direct image link — leave it as is
+    if (/^https?:\/\/i\.imgur\.com\//i.test(url)) return url;
+
+    // imgur.com/XXXXXXX  or  imgur.com/XXXXXXX.ext
+    const pageMatch = url.match(/^https?:\/\/(?:www\.)?imgur\.com\/([a-zA-Z0-9]+)(\.[a-zA-Z]{3,4})?$/i);
+    if (pageMatch) {
+      const id  = pageMatch[1];
+      const ext = pageMatch[2] || '.jpg';
+      return `https://i.imgur.com/${id}${ext}`;
+    }
+
+    // imgur.com/a/ALBUM or imgur.com/gallery/ID — can't convert albums, return as-is
+    return url;
+  }
+
   function previewImage() {
-    const url = document.getElementById('f-image').value.trim();
+    const raw = document.getElementById('f-image').value.trim();
     const img = document.getElementById('img-preview');
-    if (url) { img.src = url; img.classList.add('show'); }
-    else { img.classList.remove('show'); }
+    const badge = document.getElementById('imgur-converted');
+
+    if (!raw) {
+      img.classList.remove('show');
+      badge.style.display = 'none';
+      return;
+    }
+
+    const converted = convertImgurUrl(raw);
+    const wasConverted = converted !== raw;
+
+    badge.style.display = wasConverted ? 'block' : 'none';
+    img.src = converted;
+    img.classList.add('show');
+    img.onerror = () => {
+      // If .jpg failed, try .png
+      if (converted.endsWith('.jpg')) {
+        img.src = converted.replace('.jpg', '.png');
+      } else {
+        img.classList.remove('show');
+        badge.style.display = 'none';
+      }
+    };
+  }
+
+  // Returns the final (converted) image URL to save in the project
+  function getFinalImageUrl() {
+    const raw = document.getElementById('f-image').value.trim();
+    return convertImgurUrl(raw);
   }
 
   /* ══════════════ PUBLISH TO GITHUB ══════════════ */
