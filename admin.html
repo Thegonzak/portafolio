@@ -395,12 +395,21 @@
 
 <script>
   /* ══════════════ AUTH ══════════════ */
-  // ⚠️ CAMBIA ESTA CONTRASEÑA antes de subir
-  const ADMIN_PASSWORD = 'Gonzak10051998';
+  // Contraseña almacenada como hash SHA-256 
+  const PASSWORD_HASH = '11fb9691cf1df10f74123e8fce4f5115c3202e750dda35f509efa2ea322ec1ea';
 
-  function tryLogin() {
+  async function hashPassword(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function tryLogin() {
     const val = document.getElementById('password-input').value;
-    if (val === ADMIN_PASSWORD) {
+    const hashed = await hashPassword(val);
+    if (hashed === PASSWORD_HASH) {
       sessionStorage.setItem('admin_auth', '1');
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('admin-app').style.display = 'block';
