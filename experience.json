@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "id": 1775624375002,
+    "role": "Analista TI",
+    "company": "Cartorama -  Guayaquil, Ecuador",
+    "startDate": "Sep 2023",
+    "endDate": "May 2024",
+    "current": false,
+    "description": "• Desarrollo de Procesos en PLSQL a nivel empresarial.\n• Desarrollo de nuevos requerimientos en el aplicativo de la empresa.\n• Mantenimiento o solución de errores del aplicativo de la empresa.\n• Creación, mantenimiento o solución en Oracle Forms & Reports.",
+    "tags": [
+      "Oracle Forms",
+      "Reports",
+      "plsql"
+    ]
+  },
+  {
+    "id": 1775624622165,
+    "role": "Ingeniero en proyectos Jr.",
+    "company": "GlobalHitss - Guayaquil, Ecuador",
+    "startDate": "Dic 2022",
+    "endDate": "Sep 2023",
+    "current": false,
+    "description": "• Ingeniero de mesa de servicio IT.\n• Detección de errores presentados en la plataforma AXIS.\n• Realizar tester en paqueterias de la base de datos Oracle mediante PLSQL.",
+    "tags": [
+      "Oracle",
+      "Plsql",
+      "Querys"
+    ]
+  },
+  {
+    "id": 1775624896509,
+    "role": "Desarrollador Medio/Semi-Senior",
+    "company": "Armada de Ecuador",
+    "startDate": "Jun 2024",
+    "endDate": null,
+    "current": true,
+    "description": "- Desarrollo de nuevas funciones en Odoo de la página institucional.\n- Mantenimiento de módulos.\n- Mantenimiento de tablas en la base de datos Postgres",
+    "tags": [
+      "Odoo",
+      "Postgres",
+      "Python",
+      "Querys"
+    ]
+  }
+]
