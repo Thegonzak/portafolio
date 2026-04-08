@@ -264,6 +264,7 @@
     <!-- Tabs -->
     <div class="tab-bar">
       <div class="tab active" onclick="switchTab('projects')">Proyectos</div>
+      <div class="tab" onclick="switchTab('experience')">Experiencia</div>
       <div class="tab" onclick="switchTab('config')">Configuración GitHub</div>
     </div>
 
@@ -353,6 +354,85 @@
       </div>
     </div>
 
+    <!-- EXPERIENCE TAB -->
+    <div class="config-section" id="tab-experience">
+      <div class="admin-grid">
+
+        <!-- EXPERIENCE LIST -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Experiencias</span>
+            <button class="btn btn-sm btn-success" onclick="newExperience()">+ Nueva</button>
+          </div>
+          <div class="panel-body">
+            <div class="project-list" id="exp-list">
+              <div class="empty">Cargando...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPERIENCE FORM -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title" id="exp-form-title">Nueva experiencia</span>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Cargo / Puesto *</label>
+              <input type="text" id="ef-role" placeholder="Desarrollador Frontend">
+            </div>
+            <div class="form-group">
+              <label>Empresa *</label>
+              <input type="text" id="ef-company" placeholder="Nombre de la empresa">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fecha inicio</label>
+                <input type="text" id="ef-start" placeholder="Ene 2022">
+              </div>
+              <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="text" id="ef-end" placeholder="Dic 2023">
+              </div>
+            </div>
+            <div class="form-group" style="display:flex;align-items:center;gap:0.7rem;">
+              <input type="checkbox" id="ef-current" style="width:auto;cursor:pointer;">
+              <label for="ef-current" style="cursor:pointer;margin:0;text-transform:none;font-size:0.88rem;color:var(--light);">Trabajo actual (en curso)</label>
+            </div>
+            <div class="form-group">
+              <label>Descripción</label>
+              <textarea id="ef-desc" placeholder="Describe tus responsabilidades y logros..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Tecnologías (presiona Enter para agregar)</label>
+              <input type="text" id="ef-tags-input" placeholder="React, Python, etc.">
+              <div class="tags-preview" id="exp-tags-preview"></div>
+            </div>
+          </div>
+          <div class="panel-footer" style="display:flex;gap:0.7rem;justify-content:flex-end;">
+            <button class="btn btn-sm btn-ghost" onclick="newExperience()">Cancelar</button>
+            <button class="btn btn-sm btn-success" onclick="saveExperience()">Guardar experiencia</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Publish experience -->
+      <div style="margin-top:1.5rem;">
+        <div class="panel">
+          <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+            <div>
+              <div style="font-weight:500;margin-bottom:0.3rem;">Publicar experiencia en GitHub</div>
+              <div style="font-size:0.82rem;color:var(--muted);">Esto actualizará el archivo <code style="background:rgba(0,0,0,0.3);padding:0.1rem 0.35rem;border-radius:3px;color:var(--light);">experience.json</code> en tu repositorio y los cambios se reflejarán en el sitio.</div>
+            </div>
+            <button class="btn btn-sm btn-primary" style="background:var(--accent);color:var(--navy);font-weight:600;" onclick="publishExperienceToGitHub()" id="publish-exp-btn">
+              🚀 Publicar en GitHub
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIG TAB -->
     <div class="config-section" id="tab-config">
       <div class="panel" style="max-width:560px;">
@@ -434,13 +514,17 @@
   let projects = [];
   let editingId = null;
   let currentTags = [];
+  let experiences = [];
+  let editingExpId = null;
+  let currentExpTags = [];
   let cfg = { user: '', repo: '', branch: 'main', token: '' };
 
   /* ══════════════ INIT ══════════════ */
   async function init() {
     loadConfig();
-    await loadProjects();
+    await Promise.all([loadProjects(), loadExperience()]);
     renderList();
+    renderExpList();
   }
 
   /* ══════════════ CONFIG ══════════════ */
@@ -729,6 +813,197 @@
     el.className = 'show ' + type;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+  }
+
+  /* ══════════════ EXPERIENCE — LOAD ══════════════ */
+  async function loadExperience() {
+    if (cfg.user && cfg.repo && cfg.token) {
+      try {
+        const url = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/experience.json?ref=${cfg.branch}`;
+        const res = await fetch(url, { headers: { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json' } });
+        if (res.ok) {
+          const data = await res.json();
+          experiences = JSON.parse(atob(data.content.replace(/\n/g, '')));
+          return;
+        }
+      } catch(e) {}
+    }
+    try {
+      const res = await fetch('experience.json?t=' + Date.now());
+      experiences = await res.json();
+    } catch(e) {
+      experiences = [];
+    }
+  }
+
+  /* ══════════════ EXPERIENCE — RENDER LIST ══════════════ */
+  function renderExpList() {
+    const list = document.getElementById('exp-list');
+    if (!list) return;
+    if (!experiences.length) {
+      list.innerHTML = '<div class="empty">No hay experiencias. Crea la primera →</div>';
+      return;
+    }
+    list.innerHTML = experiences.map(e => `
+      <div class="project-item ${editingExpId === e.id ? 'active' : ''}" onclick="editExperience(${e.id})">
+        <div class="project-info">
+          <div class="project-name">${e.role} — ${e.company}</div>
+          <div class="project-tags-preview">${e.startDate || ''}${(e.startDate && (e.endDate || e.current)) ? ' → ' : ''}${e.current ? 'Presente' : (e.endDate || '')}</div>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteExperience(${e.id})" title="Eliminar">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ══════════════ EXPERIENCE — FORM ══════════════ */
+  function newExperience() {
+    editingExpId = null;
+    currentExpTags = [];
+    document.getElementById('exp-form-title').textContent = 'Nueva experiencia';
+    document.getElementById('ef-role').value = '';
+    document.getElementById('ef-company').value = '';
+    document.getElementById('ef-start').value = '';
+    document.getElementById('ef-end').value = '';
+    document.getElementById('ef-current').checked = false;
+    document.getElementById('ef-end').disabled = false;
+    document.getElementById('ef-desc').value = '';
+    renderExpTags();
+    renderExpList();
+  }
+
+  function editExperience(id) {
+    const e = experiences.find(x => x.id === id);
+    if (!e) return;
+    editingExpId = id;
+    currentExpTags = [...(e.tags || [])];
+    document.getElementById('exp-form-title').textContent = 'Editar experiencia';
+    document.getElementById('ef-role').value = e.role || '';
+    document.getElementById('ef-company').value = e.company || '';
+    document.getElementById('ef-start').value = e.startDate || '';
+    document.getElementById('ef-end').value = e.endDate || '';
+    document.getElementById('ef-current').checked = !!e.current;
+    document.getElementById('ef-end').disabled = !!e.current;
+    document.getElementById('ef-desc').value = e.description || '';
+    renderExpTags();
+    renderExpList();
+  }
+
+  function saveExperience() {
+    const role    = document.getElementById('ef-role').value.trim();
+    const company = document.getElementById('ef-company').value.trim();
+    if (!role || !company) { toast('Cargo y empresa son obligatorios', 'error'); return; }
+
+    const isCurrent = document.getElementById('ef-current').checked;
+    const exp = {
+      id:          editingExpId || Date.now(),
+      role,
+      company,
+      startDate:   document.getElementById('ef-start').value.trim(),
+      endDate:     isCurrent ? null : document.getElementById('ef-end').value.trim(),
+      current:     isCurrent,
+      description: document.getElementById('ef-desc').value.trim(),
+      tags:        [...currentExpTags]
+    };
+
+    if (editingExpId) {
+      const idx = experiences.findIndex(x => x.id === editingExpId);
+      experiences[idx] = exp;
+    } else {
+      experiences.push(exp);
+    }
+
+    editingExpId = null;
+    saveExpLocal();
+    renderExpList();
+    newExperience();
+    toast('Experiencia guardada. No olvides publicar en GitHub.', 'info');
+  }
+
+  function deleteExperience(id) {
+    if (!confirm('¿Eliminar esta experiencia?')) return;
+    experiences = experiences.filter(e => e.id !== id);
+    if (editingExpId === id) newExperience();
+    saveExpLocal();
+    renderExpList();
+    toast('Experiencia eliminada', 'success');
+  }
+
+  function saveExpLocal() {
+    localStorage.setItem('experience_draft', JSON.stringify(experiences));
+  }
+
+  /* ══════════════ EXPERIENCE — TAGS ══════════════ */
+  document.getElementById('ef-tags-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const val = this.value.trim().replace(/,/g, '');
+      if (val && !currentExpTags.includes(val)) {
+        currentExpTags.push(val);
+        renderExpTags();
+      }
+      this.value = '';
+    }
+  });
+
+  document.getElementById('ef-current').addEventListener('change', function() {
+    document.getElementById('ef-end').disabled = this.checked;
+    if (this.checked) document.getElementById('ef-end').value = '';
+  });
+
+  function removeExpTag(tag) {
+    currentExpTags = currentExpTags.filter(t => t !== tag);
+    renderExpTags();
+  }
+
+  function renderExpTags() {
+    document.getElementById('exp-tags-preview').innerHTML = currentExpTags.map(t =>
+      `<span class="tag-chip">${t} <button onclick="removeExpTag('${t}')">×</button></span>`
+    ).join('');
+  }
+
+  /* ══════════════ EXPERIENCE — PUBLISH TO GITHUB ══════════════ */
+  async function publishExperienceToGitHub() {
+    if (!cfg.user || !cfg.repo || !cfg.token) {
+      toast('Configura tu token de GitHub primero', 'error');
+      switchTab('config');
+      return;
+    }
+
+    const btn = document.getElementById('publish-exp-btn');
+    btn.innerHTML = '<span class="spinner"></span> Publicando...';
+    btn.disabled = true;
+
+    try {
+      const apiUrl = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/experience.json`;
+      const headers = { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+
+      let sha = null;
+      const existing = await fetch(`${apiUrl}?ref=${cfg.branch}`, { headers });
+      if (existing.ok) {
+        const data = await existing.json();
+        sha = data.sha;
+      }
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(experiences, null, 2))));
+      const body = { message: `Update experience.json — ${new Date().toLocaleDateString('es')}`, content, branch: cfg.branch };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+
+      if (res.ok) {
+        toast('¡Experiencia publicada en GitHub! 🚀', 'success');
+      } else {
+        const err = await res.json();
+        throw new Error(err.message || 'Error desconocido');
+      }
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+    }
+
+    btn.innerHTML = '🚀 Publicar en GitHub';
+    btn.disabled = false;
   }
 
   // Auto-init if already logged in
