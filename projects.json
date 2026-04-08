@@ -12,5 +12,20 @@
       "PostgreSQL 18",
       "Prisma v7"
     ]
+  },
+  {
+    "id": 1774982371471,
+    "title": "The JGE Perfumery website",
+    "description": "El sitio web de JGE Perfumery se creó para vender perfumes desde una tienda física. En él se muestran los perfumes disponibles, con sus precios y descripciones. Los clientes pueden contactar con un vendedor para realizar la compra y coordinar el envío.",
+    "year": "2025",
+    "link": "https://imgur.com/a/ybpz5dW",
+    "image": "https://i.imgur.com/cY8DAvU.jpg",
+    "tags": [
+      "JavaScript",
+      "Firebase Cloud Firestore",
+      "HTML",
+      "CSS",
+      "Bootstrap"
+    ]
   }
 ]
