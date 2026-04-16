@@ -27,5 +27,18 @@
       "CSS",
       "Bootstrap"
     ]
+  },
+  {
+    "id": 1776357635280,
+    "title": "Cuestonarios de Examenes",
+    "description": "Desarrollo básico de una plataforma para practicar de manera interactiva.",
+    "year": "2026",
+    "link": "https://thegonzak.github.io/cuestionarioCoavna/",
+    "image": "https://i.imgur.com/HcLS7gs.jpg",
+    "tags": [
+      "javascript",
+      "html",
+      "css"
+    ]
   }
 ]
