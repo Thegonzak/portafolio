@@ -212,6 +212,22 @@
     .tab.active { background: rgba(26,58,107,0.5); border-color: rgba(200,169,110,0.2); color: var(--accent); }
     .tab:hover:not(.active) { color: var(--light); }
 
+    /* ── CV UPLOAD ── */
+    .cv-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 8px; padding: 2.5rem;
+      text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.88rem; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .cv-upload-area:hover {
+      border-color: var(--accent);
+      background: rgba(200,169,110,0.04);
+      color: var(--light);
+    }
+    .cv-upload-area.has-file { border-color: var(--green); border-style: solid; }
+
     /* ── EMPTY ── */
     .empty { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.88rem; }
 
@@ -265,6 +281,7 @@
     <div class="tab-bar">
       <div class="tab active" onclick="switchTab('projects')">Proyectos</div>
       <div class="tab" onclick="switchTab('experience')">Experiencia</div>
+      <div class="tab" onclick="switchTab('cv')">Hoja de Vida</div>
       <div class="tab" onclick="switchTab('config')">Configuración GitHub</div>
     </div>
 
@@ -433,6 +450,56 @@
       </div>
     </div>
 
+    <!-- CV TAB -->
+    <div class="config-section" id="tab-cv">
+      <div class="panel" style="max-width:560px;">
+        <div class="panel-header">
+          <span class="panel-title">Hoja de Vida (CV)</span>
+          <span id="cv-status-badge" style="font-size:0.78rem;"></span>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.7;">
+            Sube tu hoja de vida en formato PDF. Se publicará como
+            <code style="background:rgba(0,0,0,0.3);padding:0.1rem 0.4rem;border-radius:3px;color:var(--light);">cv.pdf</code>
+            en tu repositorio y estará disponible para visualizarse en el portafolio.
+          </p>
+
+          <!-- Área de upload -->
+          <div class="cv-upload-area" id="cv-upload-area" onclick="document.getElementById('cv-file-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.8rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+            <div id="cv-upload-text">Haz clic para seleccionar un archivo PDF</div>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem;">Máximo recomendado: 5 MB</div>
+            <input type="file" id="cv-file-input" accept=".pdf,application/pdf" style="display:none;" onchange="handleCvFile(event)">
+          </div>
+
+          <!-- Info archivo seleccionado -->
+          <div id="cv-file-info" style="display:none;margin-top:1rem;padding:0.9rem;background:rgba(26,58,107,0.3);border-radius:6px;border:1px solid rgba(26,58,107,0.8);">
+            <div style="display:flex;align-items:center;gap:0.7rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div>
+                <div id="cv-file-name" style="font-size:0.88rem;font-weight:500;"></div>
+                <div id="cv-file-size" style="font-size:0.75rem;color:var(--muted);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CV publicado actualmente -->
+          <div id="cv-current-wrap" style="display:none;margin-top:1.2rem;">
+            <div style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;">CV actual en GitHub</div>
+            <a id="cv-current-link" href="#" target="_blank" class="btn btn-sm btn-ghost" style="text-decoration:none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Ver CV publicado
+            </a>
+          </div>
+        </div>
+        <div class="panel-footer" style="display:flex;gap:0.7rem;justify-content:flex-end;align-items:center;">
+          <button class="btn btn-sm" style="background:var(--accent);color:var(--navy);font-weight:600;" onclick="publishCvToGitHub()" id="publish-cv-btn" disabled>
+            🚀 Publicar CV en GitHub
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIG TAB -->
     <div class="config-section" id="tab-config">
       <div class="panel" style="max-width:560px;">
@@ -525,6 +592,7 @@
     await Promise.all([loadProjects(), loadExperience()]);
     renderList();
     renderExpList();
+    loadCurrentCv();
   }
 
   /* ══════════════ CONFIG ══════════════ */
@@ -1003,6 +1071,87 @@
     }
 
     btn.innerHTML = '🚀 Publicar en GitHub';
+    btn.disabled = false;
+  }
+
+  /* ══════════════ CV ══════════════ */
+  let cvBase64 = null;
+
+  async function loadCurrentCv() {
+    if (!cfg.user || !cfg.repo || !cfg.token) return;
+    try {
+      const url = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/cv.pdf?ref=${cfg.branch}`;
+      const res = await fetch(url, { headers: { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json' } });
+      if (res.ok) {
+        const rawUrl = `https://raw.githubusercontent.com/${cfg.user}/${cfg.repo}/${cfg.branch}/cv.pdf`;
+        document.getElementById('cv-current-wrap').style.display = 'block';
+        document.getElementById('cv-current-link').href = rawUrl;
+        document.getElementById('cv-status-badge').textContent = '✓ Publicado';
+        document.getElementById('cv-status-badge').style.color = 'var(--green)';
+      }
+    } catch(e) {}
+  }
+
+  function handleCvFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
+      toast('Solo se aceptan archivos PDF', 'error');
+      return;
+    }
+    const sizeMb = (file.size / 1024 / 1024).toFixed(2);
+    document.getElementById('cv-file-name').textContent = file.name;
+    document.getElementById('cv-file-size').textContent = `${sizeMb} MB`;
+    document.getElementById('cv-file-info').style.display = 'block';
+    document.getElementById('cv-upload-area').classList.add('has-file');
+    document.getElementById('cv-upload-text').textContent = file.name;
+    document.getElementById('publish-cv-btn').disabled = false;
+    const reader = new FileReader();
+    reader.onload = () => { cvBase64 = reader.result.split(',')[1]; };
+    reader.readAsDataURL(file);
+  }
+
+  async function publishCvToGitHub() {
+    if (!cfg.user || !cfg.repo || !cfg.token) {
+      toast('Configura tu token de GitHub primero', 'error');
+      switchTab('config');
+      return;
+    }
+    if (!cvBase64) { toast('Selecciona un archivo PDF primero', 'error'); return; }
+
+    const btn = document.getElementById('publish-cv-btn');
+    btn.innerHTML = '<span class="spinner"></span> Publicando...';
+    btn.disabled = true;
+
+    try {
+      const apiUrl = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/cv.pdf`;
+      const headers = { Authorization: `token ${cfg.token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+
+      let sha = null;
+      const existing = await fetch(`${apiUrl}?ref=${cfg.branch}`, { headers });
+      if (existing.ok) { const data = await existing.json(); sha = data.sha; }
+
+      const body = { message: `Update cv.pdf — ${new Date().toLocaleDateString('es')}`, content: cvBase64, branch: cfg.branch };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+
+      if (res.ok) {
+        toast('¡CV publicado en GitHub! 🚀', 'success');
+        const rawUrl = `https://raw.githubusercontent.com/${cfg.user}/${cfg.repo}/${cfg.branch}/cv.pdf`;
+        document.getElementById('cv-current-wrap').style.display = 'block';
+        document.getElementById('cv-current-link').href = rawUrl;
+        document.getElementById('cv-status-badge').textContent = '✓ Publicado';
+        document.getElementById('cv-status-badge').style.color = 'var(--green)';
+      } else {
+        const err = await res.json();
+        throw new Error(err.message || 'Error desconocido');
+      }
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+    }
+
+    btn.innerHTML = '🚀 Publicar CV en GitHub';
     btn.disabled = false;
   }
 

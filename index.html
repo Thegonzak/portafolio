@@ -425,6 +425,48 @@
     }
     .exp-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
+    /* ── CV MODAL ── */
+    .cv-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .cv-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .cv-modal {
+      background: var(--card-bg);
+      border: 1px solid rgba(200,169,110,0.2);
+      border-radius: 12px;
+      width: 100%; max-width: 860px;
+      height: 85vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transform: translateY(24px);
+      transition: transform 0.3s;
+    }
+    .cv-modal-overlay.open .cv-modal { transform: translateY(0); }
+    .cv-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .cv-modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; color: var(--accent);
+    }
+    .cv-modal-actions { display: flex; gap: 0.7rem; align-items: center; }
+    .cv-modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      transition: color 0.2s; padding: 0.2rem;
+    }
+    .cv-modal-close:hover { color: var(--light); }
+    .cv-modal-iframe { flex: 1; border: none; width: 100%; }
+
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
@@ -482,6 +524,10 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="14"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
           </a>
           <a href="#contacto" class="btn btn-outline">Contactar</a>
+          <button id="cv-btn" class="btn btn-outline" onclick="openCvModal()" style="display:none;margin-left:1rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Ver CV
+          </button>
         </div>
       </div>
 
@@ -563,6 +609,23 @@
       </a>
     </div>
   </section>
+
+  <!-- CV MODAL -->
+  <div class="cv-modal-overlay" id="cv-modal-overlay" onclick="closeCvModalOnOverlay(event)">
+    <div class="cv-modal">
+      <div class="cv-modal-header">
+        <div class="cv-modal-title">Hoja de Vida</div>
+        <div class="cv-modal-actions">
+          <a id="cv-download-link" href="cv.pdf" download="CV.pdf" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.8rem;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Descargar
+          </a>
+          <button class="cv-modal-close" onclick="closeCvModal()">&#x2715;</button>
+        </div>
+      </div>
+      <iframe class="cv-modal-iframe" id="cv-iframe" src="" title="Hoja de Vida"></iframe>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer>
@@ -659,6 +722,33 @@
     loadProjects();
     loadExperience();
     renderSkills();
+    checkCvExists();
+
+    async function checkCvExists() {
+      try {
+        const res = await fetch('cv.pdf', { method: 'HEAD' });
+        if (res.ok) document.getElementById('cv-btn').style.display = 'inline-flex';
+      } catch(e) {}
+    }
+
+    function openCvModal() {
+      const overlay = document.getElementById('cv-modal-overlay');
+      document.getElementById('cv-iframe').src = 'cv.pdf';
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCvModal() {
+      document.getElementById('cv-modal-overlay').classList.remove('open');
+      document.getElementById('cv-iframe').src = '';
+      document.body.style.overflow = '';
+    }
+
+    function closeCvModalOnOverlay(e) {
+      if (e.target === document.getElementById('cv-modal-overlay')) closeCvModal();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCvModal(); });
   </script>
 </body>
 </html>
