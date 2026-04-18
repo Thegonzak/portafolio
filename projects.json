@@ -2,7 +2,7 @@
   {
     "id": 1,
     "title": "E-Commerce Dashboard PC Solutions",
-    "description": "Panel de administración completo para tienda informatica en línea con gestión de inventario, pedidos y análisis de ventas en tiempo real.",
+    "description": "Panel de administraciÃ³n completo para tienda informatica en lÃ­nea con gestiÃ³n de inventario, pedidos y anÃ¡lisis de ventas en tiempo real.",
     "year": "2026",
     "link": "https://imgur.com/a/ecommerce-pc-solutions-K6MnDQS",
     "image": "https://i.imgur.com/aRT0TOj.png",
@@ -16,7 +16,7 @@
   {
     "id": 1774982371471,
     "title": "The JGE Perfumery website",
-    "description": "El sitio web de JGE Perfumery se creó para vender perfumes desde una tienda física. En él se muestran los perfumes disponibles, con sus precios y descripciones. Los clientes pueden contactar con un vendedor para realizar la compra y coordinar el envío.",
+    "description": "El sitio web de JGE Perfumery se creÃ³ para vender perfumes desde una tienda fÃ­sica. En Ã©l se muestran los perfumes disponibles, con sus precios y descripciones. Los clientes pueden contactar con un vendedor para realizar la compra y coordinar el envÃ­o.",
     "year": "2025",
     "link": "https://imgur.com/a/ybpz5dW",
     "image": "https://i.imgur.com/cY8DAvU.jpg",
@@ -31,7 +31,7 @@
   {
     "id": 1776357635280,
     "title": "Cuestonarios de Examenes",
-    "description": "Desarrollo básico de una plataforma para practicar de manera interactiva.",
+    "description": "Desarrollo bÃ¡sico de una plataforma para practicar de manera interactiva.",
     "year": "2026",
     "link": "https://thegonzak.github.io/cuestionarioCoavna/",
     "image": "https://i.imgur.com/HcLS7gs.jpg",
@@ -39,6 +39,20 @@
       "javascript",
       "html",
       "css"
+    ]
+  },
+  {
+    "id": 1776394787621,
+    "title": "Generador de Proformas.",
+    "description": "Aplicación de escritorio, con la finalidad de generar proformas digitales de servicios de cualquier tipo de actividad económica. \nDashboard, Listado de proformas creadas e Impresión en PDF.",
+    "year": "2026",
+    "link": "https://imgur.com/a/DI8V3qr",
+    "image": "https://i.imgur.com/h8b2duI.jpg",
+    "tags": [
+      "Javascript",
+      "Node.js",
+      "electron",
+      "Figma"
     ]
   }
 ]
